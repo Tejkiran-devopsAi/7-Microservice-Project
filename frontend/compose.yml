@@ -1,4 +1,4 @@
-service:
+services:
  fronted:
   container_name: frontend
   image: web-ui-image:latest
