@@ -1,6 +1,6 @@
 # DevOps Shack Polyglot Microservices Lab
 
-A complete **7-microservice**, multi-language application that runs locally **without Docker**.vvvaaa
+A complete **7-microservice**, multi-language application that runs locally **without Docker**.vvvaaaaaa
 
 ## Architecture
 
