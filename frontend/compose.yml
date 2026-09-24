@@ -3,5 +3,5 @@ services:
   
   image: web-ui-image:latest
   ports: 
-   - "5174:5174"
+   - "5174:5173"
 
