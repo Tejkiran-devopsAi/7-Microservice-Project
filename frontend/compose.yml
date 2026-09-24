@@ -1,6 +1,6 @@
 services:
  fronted:
-  container_name: masstejkiran
+  
   image: web-ui-image:latest
   ports: 
    - "5174:5174"
