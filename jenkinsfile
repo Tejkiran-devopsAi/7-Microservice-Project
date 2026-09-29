@@ -1,0 +1,144 @@
+pipeline {
+    agent any
+   tools {
+       maven 'mymaven'
+   }
+    stages {
+        stage('clean workplace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('scm') {
+            steps {
+                git branch:'main', url:'https://github.com/Tejkiran-devopsAi/7-Microservice-Project.git'
+            }
+        }
+        stage('build image') {
+            steps {
+                dir('frontend'){
+                    sh 'docker build -t web-ui-image .'
+                }
+                
+            }
+        }
+      
+        stage("built the image analytic-service") {
+            steps {
+                dir('services/analytics-service'){
+                    sh 'docker build -t analytics-service .'
+                }
+            }
+        }
+         stage("built the image auth-service") {
+            steps {
+                dir('services/auth-service'){
+                    sh 'java -version'
+                    sh 'mvn -version'
+                    sh 'mvn clean package'
+                    sh 'ls -lh target/*.jar'
+                     sh '''
+                        aws s3 cp target/*.jar s3://artifact234/auth-service/
+                    '''
+                     sh '''
+                        aws s3 cp s3://artifact234/auth-service/auth-service-1.0.0.jar .
+                    '''
+                    sh ''
+                    sh 'docker build -t auth-service .'
+                }
+            }
+        }
+        stage('catalog-service') {
+            steps {
+                dir('services/catalog-service') {
+                    sh 'docker build -t catalog-service .'
+                }
+            }
+        }
+         stage('inventory-service') {
+            steps {
+                dir('services/inventory-service') {
+                    sh 'docker build -t inventory-service .'
+                }
+            }
+        }
+         stage('notification-service') {
+            steps {
+                dir('services/notification-service') {
+                    sh 'docker build -t notification-service .'
+                }
+            }
+        }
+        stage('order-service') {
+            steps {
+                dir('services/order-service') {
+                    sh 'docker build -t order-service .'
+                }
+            }
+        }
+         stage('payment-service') {
+            steps {
+                dir('services/payment-service') {
+                    sh 'docker build -t payment-service .'
+                }
+            }
+        }
+        stage('postgres') {
+            steps {
+                dir('database') {
+                    sh 'docker build -t postgres .'
+                }
+            }
+        }
+        stage('Trivy Scan') {
+    steps {
+        sh 'trivy image web-ui-image'
+        sh 'trivy image analytics-service'
+        sh 'trivy image auth-service'
+        sh 'trivy image postgres'
+        sh 'trivy image payment-service'
+        sh 'trivy image notification-service'
+        sh 'trivy image inventory-service'
+        sh 'trivy image catalog-service'
+        sh 'trivy image order-service'
+        
+    }
+}
+stage('ecr login'){
+    steps {
+        sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 979700391724.dkr.ecr.us-east-1.amazonaws.com'
+    }
+}
+stage('tag your image'){
+    steps {
+        sh 'docker tag web-ui-image:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:web-ui-image'
+        sh 'docker tag analytics-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:analytics-service'
+        sh 'docker tag auth-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:auth-service'
+        sh 'docker tag postgres:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:postgres'
+        sh 'docker tag payment-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:payment-service'
+        sh 'docker tag notification-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:notification-service'
+        sh 'docker tag inventory-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:inventory-service'
+        sh 'docker tag catalog-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:catalog-service'
+        sh 'docker tag order-service:latest 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:order-service'
+
+
+        }
+}
+stage('AWS repository'){
+    steps{
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:web-ui-image'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:analytics-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:auth-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:postgres'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:payment-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:notification-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:inventory-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:catalog-service'
+        sh 'docker push 979700391724.dkr.ecr.us-east-1.amazonaws.com/microse-service-project:order-service'
+
+    }
+}
+        
+        
+    }
+}
