@@ -1,4 +1,4 @@
-
+```yaml
 name: Microservices CI
 
 on:
@@ -7,6 +7,7 @@ on:
       - main
   workflow_dispatch:
 
+# Required for GitHub OIDC
 permissions:
   id-token: write
   contents: read
@@ -22,18 +23,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     
 
       # --------------------------------------------------
       # 1. Checkout source code
       # --------------------------------------------------
-    
-        
       - name: Checkout source
         uses: actions/checkout@v4
 
       # --------------------------------------------------
-      # 2. Setup Java
+      # 2. Setup Java 21
       # --------------------------------------------------
       - name: Setup Java 21
         uses: actions/setup-java@v4
@@ -43,7 +41,7 @@ jobs:
           cache: maven
 
       # --------------------------------------------------
-      # 3. Setup Maven
+      # 3. Verify Java and Maven
       # --------------------------------------------------
       - name: Verify Java and Maven
         run: |
@@ -60,7 +58,7 @@ jobs:
           ls -lh target/*.jar
 
       # --------------------------------------------------
-      # 5. Configure AWS using GitHub OIDC
+      # 5. Configure AWS credentials using GitHub OIDC
       # --------------------------------------------------
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -70,61 +68,92 @@ jobs:
           role-session-name: GitHubActionsECR
 
       # --------------------------------------------------
-      # 6. Login to ECR
+      # 6. Verify AWS identity
+      # --------------------------------------------------
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+
+      # --------------------------------------------------
+      # 7. Login to Amazon ECR
       # --------------------------------------------------
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
       # --------------------------------------------------
-      # 7. Build Docker images
+      # 8. Build Web UI image
       # --------------------------------------------------
       - name: Build Web UI image
         working-directory: frontend
         run: |
           docker build -t web-ui-image:latest .
 
+      # --------------------------------------------------
+      # 9. Build Analytics image
+      # --------------------------------------------------
       - name: Build Analytics image
         working-directory: services/analytics-service
         run: |
           docker build -t analytics-service:latest .
 
+      # --------------------------------------------------
+      # 10. Build Auth image
+      # --------------------------------------------------
       - name: Build Auth image
         working-directory: services/auth-service
         run: |
           docker build -t auth-service:latest .
 
+      # --------------------------------------------------
+      # 11. Build Catalog image
+      # --------------------------------------------------
       - name: Build Catalog image
         working-directory: services/catalog-service
         run: |
           docker build -t catalog-service:latest .
 
+      # --------------------------------------------------
+      # 12. Build Inventory image
+      # --------------------------------------------------
       - name: Build Inventory image
         working-directory: services/inventory-service
         run: |
           docker build -t inventory-service:latest .
 
+      # --------------------------------------------------
+      # 13. Build Notification image
+      # --------------------------------------------------
       - name: Build Notification image
         working-directory: services/notification-service
         run: |
           docker build -t notification-service:latest .
 
+      # --------------------------------------------------
+      # 14. Build Order image
+      # --------------------------------------------------
       - name: Build Order image
         working-directory: services/order-service
         run: |
           docker build -t order-service:latest .
 
+      # --------------------------------------------------
+      # 15. Build Payment image
+      # --------------------------------------------------
       - name: Build Payment image
         working-directory: services/payment-service
         run: |
           docker build -t payment-service:latest .
 
+      # --------------------------------------------------
+      # 16. Build PostgreSQL image
+      # --------------------------------------------------
       - name: Build PostgreSQL image
         working-directory: database
         run: |
           docker build -t postgres:latest .
 
       # --------------------------------------------------
-      # 8. Trivy scan
+      # 17. Install Trivy
       # --------------------------------------------------
       - name: Install Trivy
         run: |
@@ -141,6 +170,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
+      # --------------------------------------------------
+      # 18. Trivy security scan
+      # --------------------------------------------------
       - name: Trivy Scan
         run: |
           trivy image web-ui-image:latest
@@ -154,10 +186,11 @@ jobs:
           trivy image order-service:latest
 
       # --------------------------------------------------
-      # 9. Tag images
+      # 19. Tag images for ECR
       # --------------------------------------------------
       - name: Tag images for ECR
         run: |
+
           docker tag web-ui-image:latest \
             $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
 
@@ -186,16 +219,35 @@ jobs:
             $ECR_REGISTRY/$ECR_REPOSITORY:order-service
 
       # --------------------------------------------------
-      # 10. Push images to ECR
+      # 20. Push images to ECR
       # --------------------------------------------------
       - name: Push images to ECR
         run: |
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:postgres
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:order-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:postgres
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
+
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:order-service
+```
