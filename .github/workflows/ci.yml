@@ -1,0 +1,198 @@
+
+name: Microservices CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: "979700391724"
+  ECR_REPOSITORY: microse-service-project
+  ECR_REGISTRY: 979700391724.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  build-scan-push:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # --------------------------------------------------
+      # 1. Checkout source code
+      # --------------------------------------------------
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # 2. Setup Java
+      # --------------------------------------------------
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # --------------------------------------------------
+      # 3. Setup Maven
+      # --------------------------------------------------
+      - name: Verify Java and Maven
+        run: |
+          java -version
+          mvn -version
+
+      # --------------------------------------------------
+      # 4. Build Auth Service
+      # --------------------------------------------------
+      - name: Build Auth Service
+        working-directory: services/auth-service
+        run: |
+          mvn clean package
+          ls -lh target/*.jar
+
+      # --------------------------------------------------
+      # 5. Configure AWS using GitHub OIDC
+      # --------------------------------------------------
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::979700391724:role/GitHubActionsECRRole
+          aws-region: us-east-1
+          role-session-name: GitHubActionsECR
+
+      # --------------------------------------------------
+      # 6. Login to ECR
+      # --------------------------------------------------
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # --------------------------------------------------
+      # 7. Build Docker images
+      # --------------------------------------------------
+      - name: Build Web UI image
+        working-directory: frontend
+        run: |
+          docker build -t web-ui-image:latest .
+
+      - name: Build Analytics image
+        working-directory: services/analytics-service
+        run: |
+          docker build -t analytics-service:latest .
+
+      - name: Build Auth image
+        working-directory: services/auth-service
+        run: |
+          docker build -t auth-service:latest .
+
+      - name: Build Catalog image
+        working-directory: services/catalog-service
+        run: |
+          docker build -t catalog-service:latest .
+
+      - name: Build Inventory image
+        working-directory: services/inventory-service
+        run: |
+          docker build -t inventory-service:latest .
+
+      - name: Build Notification image
+        working-directory: services/notification-service
+        run: |
+          docker build -t notification-service:latest .
+
+      - name: Build Order image
+        working-directory: services/order-service
+        run: |
+          docker build -t order-service:latest .
+
+      - name: Build Payment image
+        working-directory: services/payment-service
+        run: |
+          docker build -t payment-service:latest .
+
+      - name: Build PostgreSQL image
+        working-directory: database
+        run: |
+          docker build -t postgres:latest .
+
+      # --------------------------------------------------
+      # 8. Trivy scan
+      # --------------------------------------------------
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+            | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+            | sudo tee /etc/apt/sources.list.d/trivy.list
+
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Trivy Scan
+        run: |
+          trivy image web-ui-image:latest
+          trivy image analytics-service:latest
+          trivy image auth-service:latest
+          trivy image postgres:latest
+          trivy image payment-service:latest
+          trivy image notification-service:latest
+          trivy image inventory-service:latest
+          trivy image catalog-service:latest
+          trivy image order-service:latest
+
+      # --------------------------------------------------
+      # 9. Tag images
+      # --------------------------------------------------
+      - name: Tag images for ECR
+        run: |
+          docker tag web-ui-image:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
+
+          docker tag analytics-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
+
+          docker tag auth-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
+
+          docker tag postgres:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:postgres
+
+          docker tag payment-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
+
+          docker tag notification-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
+
+          docker tag inventory-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
+
+          docker tag catalog-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
+
+          docker tag order-service:latest \
+            $ECR_REGISTRY/$ECR_REPOSITORY:order-service
+
+      # --------------------------------------------------
+      # 10. Push images to ECR
+      # --------------------------------------------------
+      - name: Push images to ECR
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:postgres
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:order-service
