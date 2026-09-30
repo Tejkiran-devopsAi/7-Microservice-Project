@@ -8,6 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN rm -rf node_modules/.vite
 
 EXPOSE 5173
 

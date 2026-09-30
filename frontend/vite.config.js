@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+
   server: {
     host: "0.0.0.0",
     port: 5173,
@@ -10,12 +11,8 @@ export default defineConfig({
     allowedHosts: [
       "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com"
     ],
-    
-     hmr: {
-      host: "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com",
-      clientPort: 80,
-      protocol: "ws",
-    },
+
+    hmr: false,
 
     proxy: {
       "/api/auth": {
