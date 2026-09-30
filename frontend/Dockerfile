@@ -1,5 +1,4 @@
-
-FROM node:22.12.0-alpine
+FROM node:22.12.0-alpine AS build
 
 WORKDIR /frontend
 
@@ -8,8 +7,14 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN rm -rf node_modules/.vite
 
-EXPOSE 5173
+RUN npm run build
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+FROM nginx:alpine
+
+COPY --from=build /frontend/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
