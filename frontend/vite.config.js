@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
+
     allowedHosts: [
       "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com"
     ],
