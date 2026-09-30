@@ -250,3 +250,42 @@ jobs:
 
           docker push \
             $ECR_REGISTRY/$ECR_REPOSITORY:order-service-$IMAGE_TAG
+
+      # --------------------------------------------------
+      # 21. Update GitOps repository
+      # --------------------------------------------------
+      - name: Update Kubernetes manifests
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+
+          IMAGE_TAG="${GITHUB_SHA::7}"
+
+          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/Tejkiran-devopsAi/microservice-project-yml.git gitops
+
+          cd gitops
+
+          sed -i "s|image: .*microse-service-project:analytics-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service-$IMAGE_TAG|" k8s/deployment/analytics.yaml
+
+          sed -i "s|image: .*microse-service-project:auth-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:auth-service-$IMAGE_TAG|" k8s/deployment/authentication.yml
+
+          sed -i "s|image: .*microse-service-project:catalog-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service-$IMAGE_TAG|" k8s/deployment/catalog.yaml
+
+          sed -i "s|image: .*microse-service-project:inventory-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service-$IMAGE_TAG|" k8s/deployment/inventory.yaml
+
+          sed -i "s|image: .*microse-service-project:notification-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:notification-service-$IMAGE_TAG|" k8s/deployment/notification.yaml
+
+          sed -i "s|image: .*microse-service-project:order-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:order-service-$IMAGE_TAG|" k8s/deployment/order.yaml
+
+          sed -i "s|image: .*microse-service-project:payment-service.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:payment-service-$IMAGE_TAG|" k8s/deployment/payments.yml
+
+          sed -i "s|image: .*microse-service-project:web-ui-image.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image-$IMAGE_TAG|" k8s/deployment/web-ui.yaml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add k8s/deployment/
+
+          git commit -m "Update images to ${IMAGE_TAG}" || echo "No changes to commit"
+
+          git push origin main
