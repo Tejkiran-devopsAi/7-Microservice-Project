@@ -22,8 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: OIDC Debug
-        uses: github/actions-oidc-debugger@main
+     
 
       # --------------------------------------------------
       # 1. Checkout source code
