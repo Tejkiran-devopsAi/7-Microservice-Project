@@ -25,7 +25,7 @@ export default defineConfig({
       },
 
       "/api/inventory": {
-        target: " http://inventory-service:8083",
+        target: "http://inventory-service:8083",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/inventory/, ""),
       },
