@@ -190,33 +190,36 @@ jobs:
       # --------------------------------------------------
       - name: Tag images for ECR
         run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
 
           docker tag web-ui-image:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image-$IMAGE_TAG
 
           docker tag analytics-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service-$IMAGE_TAG
 
           docker tag auth-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service-$IMAGE_TAG
 
           docker tag postgres:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:postgres-$IMAGE_TAG
 
           docker tag payment-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service-$IMAGE_TAG
 
           docker tag notification-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service-$IMAGE_TAG
 
           docker tag inventory-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service-$IMAGE_TAG
 
           docker tag catalog-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service-$IMAGE_TAG
 
           docker tag order-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            $ECR_REGISTRY/$ECR_REPOSITORY:order-service-$IMAGE_TAG
+
+  
 
       # --------------------------------------------------
       # 20. Push images to ECR
