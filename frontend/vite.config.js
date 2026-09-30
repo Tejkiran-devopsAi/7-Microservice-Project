@@ -7,46 +7,49 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
+    allowedHosts: [
+      "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com"
+    ],
 
     proxy: {
       "/api/auth": {
-        target: "http://127.0.0.1:8081",
+        target: "http://auth-service:8081",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/auth/, ""),
       },
 
       "/api/catalog": {
-        target: "http://127.0.0.1:8082",
+        target: "http://catalog-service:8082",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/catalog/, ""),
       },
 
       "/api/inventory": {
-        target: "http://127.0.0.1:8083",
+        target: " http://inventory-service:8083",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/inventory/, ""),
       },
 
       "/api/orders": {
-        target: "http://127.0.0.1:8084",
+        target: "http://order-service:8084",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/orders/, ""),
       },
 
       "/api/payments": {
-        target: "http://127.0.0.1:8085",
+        target: "http://payment-service:8085",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/payments/, ""),
       },
 
       "/api/notifications": {
-        target: "http://127.0.0.1:8086",
+        target: "http://notification-service:8086",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/notifications/, ""),
       },
 
       "/api/analytics": {
-        target: "http://127.0.0.1:8087",
+        target: "http://analytics-service:8087",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/analytics/, ""),
       },
