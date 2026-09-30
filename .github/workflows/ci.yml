@@ -221,11 +221,12 @@ jobs:
 
   
 
-      # --------------------------------------------------
+     # --------------------------------------------------
       # 20. Push images to ECR
       # --------------------------------------------------
       - name: Push images to ECR
         run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
 
           docker push \
             $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image-$IMAGE_TAG
@@ -253,7 +254,6 @@ jobs:
 
           docker push \
             $ECR_REGISTRY/$ECR_REPOSITORY:order-service-$IMAGE_TAG
-
       # --------------------------------------------------
       # 21. Update GitOps repository
       # --------------------------------------------------
