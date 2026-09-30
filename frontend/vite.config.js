@@ -10,6 +10,12 @@ export default defineConfig({
     allowedHosts: [
       "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com"
     ],
+    
+     hmr: {
+      host: "k8s-microser-microser-504c967287-1714564939.us-east-1.elb.amazonaws.com",
+      clientPort: 80,
+      protocol: "ws",
+    },
 
     proxy: {
       "/api/auth": {
