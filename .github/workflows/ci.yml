@@ -192,31 +192,31 @@ jobs:
         run: |
 
           docker tag web-ui-image:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag analytics-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag auth-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag postgres:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:postgres
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag payment-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag notification-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag inventory-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag catalog-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           docker tag order-service:latest \
-            $ECR_REGISTRY/$ECR_REPOSITORY:order-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # --------------------------------------------------
       # 20. Push images to ECR
@@ -225,28 +225,28 @@ jobs:
         run: |
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image
+            $ECR_REGISTRY/$ECR_REPOSITORY:web-ui-image-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:analytics-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:auth-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:postgres
+            $ECR_REGISTRY/$ECR_REPOSITORY:postgres-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:payment-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:notification-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:inventory-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:catalog-service-$IMAGE_TAG
 
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:order-service
+            $ECR_REGISTRY/$ECR_REPOSITORY:order-service-$IMAGE_TAG
