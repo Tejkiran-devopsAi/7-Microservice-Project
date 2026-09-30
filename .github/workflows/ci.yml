@@ -1,4 +1,4 @@
-```yaml
+
 name: Microservices CI
 
 on:
@@ -250,4 +250,3 @@ jobs:
 
           docker push \
             $ECR_REGISTRY/$ECR_REPOSITORY:order-service
-```
