@@ -98,7 +98,7 @@ export default function App() {
     if(!user) return;
     const token=localStorage.getItem("poly_token");
     if(token){
-      request(`${URLs.auth}/auth/me?token=${encodeURIComponent(token)}`).catch(()=>{
+      request(`${URLs.auth}/me?token=${encodeURIComponent(token)}`).catch(()=>{
         localStorage.clear();
         setUser(null);
       });
