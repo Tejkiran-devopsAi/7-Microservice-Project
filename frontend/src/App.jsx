@@ -60,7 +60,7 @@ export default function App() {
       },
       {
         name: "Analytics",
-        url: `${URLs.analytics}/summary`,
+        url: `${URLs.analytics}/analytics`,
         setter: setAnalytics
       }
     ];
