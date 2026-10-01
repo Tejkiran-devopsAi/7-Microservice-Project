@@ -330,7 +330,7 @@ function Login({onLogin}) {
     e.preventDefault();setError("");
     try{
       if(mode==="register") await request(`${URLs.auth}/auth/register`,{method:"POST",body:JSON.stringify(form)});
-      const data=await request(`${URLs.auth}/auth/login`,{method:"POST",body:JSON.stringify({email:form.email,password:form.password})});
+      const data=await request(`${URLs.auth}/login`,{method:"POST",body:JSON.stringify({email:form.email,password:form.password})});
       onLogin(data.user,data.token);
     }catch(e){setError(e.message)}
   }
